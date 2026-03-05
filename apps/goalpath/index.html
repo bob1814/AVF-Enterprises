@@ -3,77 +3,197 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src 'self' https://developer.apple.com; frame-ancestors 'none'; base-uri 'self'">
+    <!-- Security: CSP restricts resource loading to prevent XSS and unauthorized content.
+         Note: frame-ancestors only works as an HTTP header. See _headers file for full server-side security headers. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src https://fonts.gstatic.com https://cdn.jsdelivr.net; script-src 'unsafe-inline'; img-src 'self' https://developer.apple.com; base-uri 'self'">
     <meta name="referrer" content="strict-origin-when-cross-origin">
-    <title>GoalPath - Turn Goals Into Daily Progress</title>
-    <meta name="description" content="GoalPath helps you set, track, and achieve your goals. Break big dreams into daily actions and stay focused on what matters.">
+    <title>GoalPath — Turn Goals Into Daily Progress</title>
+    <meta name="description" content="GoalPath turns your goals into a clear daily plan. Break any goal into phases, tasks, and to-dos. See what to do today. Free on iOS.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link href="https://cdn.jsdelivr.net/npm/geist@1/dist/fonts/geist-sans/style.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        * {
+        *, *::before, *::after {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
         :root {
-            --bg-primary: #fafafa;
-            --bg-dark: #1a1a1a;
-            --text-primary: #1a1a1a;
-            --text-secondary: #666;
-            --text-light: #999;
-            --accent-blue: #007AFF;
-            --accent-green: #34C759;
-            --border-light: #e5e5e5;
+            --color-bg: #0a0a0f;
+            --color-bg-elevated: #12121a;
+            --color-bg-card: #1a1a24;
+            --color-accent: #4d7cff;
+            --color-accent-glow: rgba(77, 124, 255, 0.15);
+            --color-accent-bright: #6b93ff;
+            --color-green: #34d399;
+            --color-green-glow: rgba(52, 211, 153, 0.12);
+            --color-purple: #a78bfa;
+            --color-purple-glow: rgba(167, 139, 250, 0.12);
+            --color-amber: #fbbf24;
+            --color-amber-glow: rgba(251, 191, 36, 0.12);
+            --color-text: #f0f0f5;
+            --color-text-secondary: #8a8a9a;
+            --color-text-muted: #5a5a6a;
+            --color-border: rgba(255, 255, 255, 0.08);
+            --font-display: 'Geist Sans', 'Geist', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+            --max-width: 1200px;
         }
 
-        html {
-            scroll-behavior: smooth;
-        }
+        html { scroll-behavior: smooth; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
+            font-family: var(--font-body);
+            background: var(--color-bg);
+            color: var(--color-text);
             line-height: 1.6;
             overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        /* Hero Section */
+        a { color: inherit; text-decoration: none; }
+        img { display: block; max-width: 100%; }
+
+        /* ===== NAV ===== */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 1.25rem 2rem;
+            transition: background 0.3s, backdrop-filter 0.3s;
+        }
+
+        nav.scrolled {
+            background: rgba(10, 10, 15, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .nav-inner {
+            max-width: var(--max-width);
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo img {
+            height: 36px;
+            width: auto;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2.5rem;
+        }
+
+        .nav-links a {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--color-text-secondary);
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--color-text); }
+
+        .nav-cta-store {
+            display: inline-block;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+
+        .nav-cta-store:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-cta-store img {
+            height: 36px;
+            width: auto;
+        }
+
+        .nav-toggle {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            z-index: 101;
+        }
+
+        .nav-toggle span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: var(--color-text);
+            margin: 5px 0;
+            transition: transform 0.3s, opacity 0.3s;
+        }
+
+        .nav-toggle.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+        .nav-toggle.active span:nth-child(2) { opacity: 0; }
+        .nav-toggle.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+        /* ===== HERO ===== */
         .hero {
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 4rem 2rem;
+            padding: 8rem 2rem 6rem;
             position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -15%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 1200px;
+            height: 1200px;
+            background: radial-gradient(circle, rgba(77, 124, 255, 0.1) 0%, rgba(77, 124, 255, 0.04) 30%, rgba(77, 124, 255, 0.01) 50%, transparent 70%);
+            filter: blur(40px);
+            pointer-events: none;
         }
 
         .hero-content {
-            max-width: 1200px;
+            max-width: var(--max-width);
             width: 100%;
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 4rem;
             align-items: center;
+            position: relative;
+            z-index: 1;
         }
 
         .hero-text {
             opacity: 0;
             transform: translateY(30px);
-            animation: fadeInUp 0.8s ease forwards;
+            animation: fadeUp 0.8s ease 0.2s forwards;
         }
 
         .hero-badge {
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            background: var(--bg-dark);
-            color: #fff;
             padding: 0.5rem 1rem;
+            background: var(--color-bg-card);
+            border: 1px solid var(--color-border);
             border-radius: 100px;
             font-size: 0.8rem;
             font-weight: 500;
-            margin-bottom: 1.5rem;
-            letter-spacing: 0.02em;
+            color: var(--color-accent-bright);
+            margin-bottom: 2rem;
         }
 
         .hero-badge svg {
@@ -81,28 +201,30 @@
             height: 14px;
         }
 
-        .app-name {
-            font-size: clamp(2.5rem, 5vw, 3.5rem);
-            font-weight: 700;
-            color: var(--accent-blue);
-            margin-bottom: 0.5rem;
-            letter-spacing: -0.03em;
+        .app-name-hero {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--color-accent);
+            letter-spacing: 0.02em;
+            margin-bottom: 0.75rem;
         }
 
-        h1 {
-            font-size: clamp(2.5rem, 5vw, 3.5rem);
-            font-weight: 700;
-            letter-spacing: -0.03em;
-            line-height: 1.1;
+        .hero h1 {
+            font-family: var(--font-display);
+            font-size: clamp(2.5rem, 5vw, 3.75rem);
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            line-height: 1.08;
             margin-bottom: 1.5rem;
         }
 
         .hero-description {
-            font-size: 1.2rem;
-            color: var(--text-secondary);
-            margin-bottom: 2.5rem;
+            font-size: 1.15rem;
+            color: var(--color-text-secondary);
             max-width: 480px;
             line-height: 1.7;
+            margin-bottom: 2.5rem;
         }
 
         .cta-group {
@@ -114,12 +236,10 @@
 
         .app-store-btn {
             display: inline-block;
-            transition: transform 0.3s ease, opacity 0.3s;
+            transition: transform 0.3s;
         }
 
-        .app-store-btn:hover {
-            transform: scale(1.05);
-        }
+        .app-store-btn:hover { transform: scale(1.05); }
 
         .app-store-btn img {
             height: 52px;
@@ -127,8 +247,7 @@
         }
 
         .secondary-link {
-            color: var(--text-secondary);
-            text-decoration: none;
+            color: var(--color-text-secondary);
             font-size: 0.95rem;
             display: flex;
             align-items: center;
@@ -136,9 +255,7 @@
             transition: color 0.2s;
         }
 
-        .secondary-link:hover {
-            color: var(--text-primary);
-        }
+        .secondary-link:hover { color: var(--color-text); }
 
         .secondary-link svg {
             width: 16px;
@@ -146,9 +263,7 @@
             transition: transform 0.2s;
         }
 
-        .secondary-link:hover svg {
-            transform: translateX(3px);
-        }
+        .secondary-link:hover svg { transform: translateX(3px); }
 
         .hero-visual {
             display: flex;
@@ -156,127 +271,183 @@
             align-items: center;
             opacity: 0;
             transform: translateY(30px);
-            animation: fadeInUp 0.8s ease 0.2s forwards;
+            animation: fadeUp 0.8s ease 0.4s forwards;
         }
 
         .hero-phone {
             position: relative;
-            width: 280px;
+            width: 300px;
+        }
+
+        .hero-phone::before {
+            content: '';
+            position: absolute;
+            inset: -30%;
+            background: radial-gradient(circle, rgba(77, 124, 255, 0.1) 0%, rgba(77, 124, 255, 0.03) 40%, transparent 70%);
+            filter: blur(30px);
+            z-index: -1;
         }
 
         .hero-phone img {
             width: 100%;
-            height: auto;
-            border-radius: 32px;
-            box-shadow:
-                0 25px 80px rgba(0, 0, 0, 0.15),
-                0 10px 30px rgba(0, 0, 0, 0.1);
         }
 
-        /* Features Section */
-        .features {
-            padding: 8rem 2rem;
-            background: var(--bg-primary);
-        }
-
+        /* ===== SECTION COMMON ===== */
         .section-container {
-            max-width: 1200px;
+            max-width: var(--max-width);
             margin: 0 auto;
         }
 
-        .section-header {
-            text-align: center;
-            max-width: 600px;
-            margin: 0 auto 5rem;
-        }
-
         .section-label {
-            font-size: 0.85rem;
+            font-family: var(--font-display);
+            font-size: 0.8rem;
             font-weight: 600;
-            color: var(--accent-blue);
             text-transform: uppercase;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.15em;
+            color: var(--color-accent);
             margin-bottom: 1rem;
         }
 
-        h2 {
+        .section-title {
+            font-family: var(--font-display);
             font-size: clamp(2rem, 4vw, 2.75rem);
             font-weight: 700;
-            letter-spacing: -0.02em;
-            line-height: 1.2;
+            letter-spacing: -0.03em;
+            line-height: 1.15;
             margin-bottom: 1rem;
         }
 
         .section-description {
             font-size: 1.1rem;
-            color: var(--text-secondary);
+            color: var(--color-text-secondary);
             line-height: 1.7;
+        }
+
+        .section-header {
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto 4rem;
+        }
+
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--color-border), transparent);
+        }
+
+        /* ===== FEATURES ===== */
+        .features {
+            padding: 8rem 2rem;
         }
 
         .features-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 2rem;
+            gap: 1.5rem;
         }
 
         .feature-card {
-            padding: 2rem;
+            padding: 2.25rem;
+            background: var(--color-bg-elevated);
+            border: 1px solid var(--color-border);
             border-radius: 20px;
-            background: #fff;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        .feature-card.visible {
-            animation: fadeInUp 0.6s ease forwards;
+            transition: transform 0.3s, border-color 0.3s;
         }
 
         .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+            transform: translateY(-4px);
+            border-color: rgba(77, 124, 255, 0.2);
         }
 
         .feature-icon {
-            width: 56px;
-            height: 56px;
-            border-radius: 16px;
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 1.5rem;
-            font-size: 1.5rem;
+            margin-bottom: 1.25rem;
         }
 
-        .feature-icon.blue { background: rgba(0, 122, 255, 0.1); }
-        .feature-icon.green { background: rgba(52, 199, 89, 0.1); }
-        .feature-icon.purple { background: rgba(175, 82, 222, 0.1); }
-        .feature-icon.orange { background: rgba(255, 149, 0, 0.1); }
+        .feature-icon svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .feature-icon.blue { background: var(--color-accent-glow); }
+        .feature-icon.blue svg { color: var(--color-accent-bright); }
+        .feature-icon.green { background: var(--color-green-glow); }
+        .feature-icon.green svg { color: var(--color-green); }
+        .feature-icon.purple { background: var(--color-purple-glow); }
+        .feature-icon.purple svg { color: var(--color-purple); }
+        .feature-icon.amber { background: var(--color-amber-glow); }
+        .feature-icon.amber svg { color: var(--color-amber); }
 
         .feature-card h3 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 0.75rem;
+            font-family: var(--font-display);
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 0.6rem;
             letter-spacing: -0.01em;
         }
 
         .feature-card p {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            line-height: 1.6;
+            color: var(--color-text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.65;
         }
 
-        /* Screenshots Section */
+        /* ===== HOW IT WORKS ===== */
+        .how-it-works {
+            padding: 8rem 2rem;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        .step-card {
+            text-align: center;
+            padding: 2rem 1.5rem;
+        }
+
+        .step-number {
+            font-family: var(--font-display);
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--color-accent);
+            opacity: 0.3;
+            margin-bottom: 1rem;
+            line-height: 1;
+        }
+
+        .step-card h3 {
+            font-family: var(--font-display);
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .step-card p {
+            color: var(--color-text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.65;
+            max-width: 280px;
+            margin: 0 auto;
+        }
+
+        /* ===== SCREENSHOTS ===== */
         .screenshots {
             padding: 8rem 2rem;
-            background: var(--bg-primary);
             overflow: hidden;
         }
 
-        .screenshots-carousel {
+        .screenshots-track {
             display: flex;
             gap: 1.5rem;
-            padding: 2rem;
+            padding: 2rem 0;
             overflow-x: auto;
             scroll-snap-type: x mandatory;
             -webkit-overflow-scrolling: touch;
@@ -284,144 +455,225 @@
             -ms-overflow-style: none;
         }
 
-        .screenshots-carousel::-webkit-scrollbar {
-            display: none;
-        }
+        .screenshots-track::-webkit-scrollbar { display: none; }
 
         .screenshot-item {
             flex: 0 0 auto;
-            scroll-snap-align: start;
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        .screenshot-item.visible {
-            animation: fadeInUp 0.6s ease forwards;
+            scroll-snap-align: center;
         }
 
         .screenshot-frame {
-            width: 320px;
+            width: 280px;
             position: relative;
         }
 
         .screenshot-frame img {
             width: 100%;
-            height: auto;
-            border-radius: 16px;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s;
         }
 
         .screenshot-frame:hover img {
-            transform: scale(1.02);
+            transform: scale(1.03);
         }
 
-        /* CTA Section */
-        .cta-section {
+        .screenshot-label {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: var(--color-text-muted);
+            font-weight: 500;
+        }
+
+        /* ===== TESTIMONIAL / SOCIAL PROOF ===== */
+        .social-proof {
             padding: 8rem 2rem;
-            background: var(--bg-dark);
-            color: #fff;
+        }
+
+        .proof-content {
+            max-width: 700px;
+            margin: 0 auto;
             text-align: center;
         }
 
-        .cta-section h2 {
-            color: #fff;
+        .proof-quote {
+            font-family: var(--font-display);
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            font-weight: 600;
+            line-height: 1.4;
+            letter-spacing: -0.02em;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .proof-quote::before {
+            content: '\201C';
+            font-size: 4rem;
+            color: var(--color-accent);
+            opacity: 0.3;
+            position: absolute;
+            top: -1.5rem;
+            left: -0.5rem;
+            font-family: Georgia, serif;
+        }
+
+        .proof-features {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .proof-feature {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .proof-feature-value {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-accent-bright);
+        }
+
+        .proof-feature-label {
+            font-size: 0.85rem;
+            color: var(--color-text-muted);
+        }
+
+        /* ===== FINAL CTA ===== */
+        .final-cta {
+            padding: 8rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .final-cta::before {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 900px;
+            height: 900px;
+            background: radial-gradient(circle, rgba(77, 124, 255, 0.08) 0%, rgba(77, 124, 255, 0.02) 40%, transparent 70%);
+            filter: blur(40px);
+            pointer-events: none;
+        }
+
+        .final-cta .section-title {
             margin-bottom: 1rem;
         }
 
-        .cta-section .section-description {
-            color: rgba(255, 255, 255, 0.7);
-            max-width: 500px;
+        .final-cta .section-description {
+            max-width: 480px;
             margin: 0 auto 2.5rem;
         }
 
-        .cta-section .app-store-btn:hover {
-            opacity: 0.9;
+        .final-cta .cta-group {
+            justify-content: center;
         }
 
-        /* Footer */
+        /* ===== FOOTER ===== */
         footer {
             padding: 3rem 2rem;
-            background: var(--bg-dark);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid var(--color-border);
         }
 
-        .footer-content {
-            max-width: 1200px;
+        .footer-inner {
+            max-width: var(--max-width);
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 2rem;
+            gap: 1.5rem;
         }
 
         .footer-links {
             display: flex;
             gap: 2rem;
-            flex-wrap: wrap;
         }
 
         .footer-links a {
-            color: rgba(255, 255, 255, 0.7);
-            text-decoration: none;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            color: var(--color-text-muted);
             transition: color 0.2s;
         }
 
-        .footer-links a:hover {
-            color: #fff;
-        }
+        .footer-links a:hover { color: var(--color-text); }
 
         .footer-info {
             text-align: right;
         }
 
-        .footer-info .email {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
+        .footer-email {
+            color: var(--color-text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 0.25rem;
         }
 
-        .footer-info .copyright {
-            color: rgba(255, 255, 255, 0.5);
+        .footer-copyright {
             font-size: 0.8rem;
+            color: var(--color-text-muted);
         }
 
-        /* Animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        /* ===== ANIMATIONS ===== */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        @keyframes scaleIn {
-            from {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
         }
 
-        /* Responsive */
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal-stagger {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .reveal-stagger.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ===== RESPONSIVE ===== */
         @media (max-width: 968px) {
-            header {
-                padding: 1rem 2rem;
+            nav { padding: 1rem 1.5rem; }
+
+            .nav-links {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(10, 10, 15, 0.97);
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                gap: 2rem;
+                z-index: 99;
             }
 
-            .logo img {
-                height: 50px;
-            }
+            .nav-links.open { display: flex; }
+            .nav-links a { font-size: 1.25rem; }
+            .nav-toggle { display: block; }
 
             .hero {
-                padding: 3rem 1.5rem 4rem;
+                padding: 7rem 1.5rem 4rem;
+                min-height: auto;
             }
 
             .hero-content {
@@ -430,301 +682,398 @@
                 gap: 3rem;
             }
 
-            .hero-text {
-                order: 1;
-            }
-
-            .hero-visual {
-                order: 0;
-            }
+            .hero-text { order: 1; }
+            .hero-visual { order: 0; }
 
             .hero-description {
                 margin-left: auto;
                 margin-right: auto;
             }
 
-            .cta-group {
-                justify-content: center;
-            }
+            .cta-group { justify-content: center; }
 
-            .hero-phone {
-                width: 240px;
-            }
+            .hero-phone { width: 240px; }
 
-            .features,
-            .screenshots,
-            .cta-section {
+            .features, .how-it-works, .screenshots, .social-proof, .final-cta {
                 padding: 5rem 1.5rem;
-            }
-
-            .section-header {
-                margin-bottom: 3rem;
             }
 
             .features-grid {
                 grid-template-columns: 1fr;
-                gap: 1.5rem;
             }
 
-            .screenshots-carousel {
-                padding: 1.5rem;
+            .steps-grid {
+                grid-template-columns: 1fr;
                 gap: 1rem;
             }
 
-            .screenshot-frame {
-                width: 280px;
-            }
+            .screenshot-frame { width: 240px; }
 
-            .footer-content {
+            .footer-inner {
                 flex-direction: column;
                 text-align: center;
             }
 
-            .footer-info {
-                text-align: center;
-            }
+            .footer-info { text-align: center; }
         }
 
         @media (max-width: 480px) {
-            .hero-badge {
-                font-size: 0.75rem;
-                padding: 0.4rem 0.8rem;
+            .hero { padding: 6rem 1rem 3rem; }
+            .hero-phone { width: 200px; }
+            .hero-phone img { }
+            .cta-group { flex-direction: column; }
+
+            .features, .how-it-works, .screenshots, .social-proof, .final-cta {
+                padding: 4rem 1rem;
             }
 
-            .hero-phone {
-                width: 200px;
-            }
-
-            .hero-phone img {
-                border-radius: 24px;
-            }
-
-            .feature-card {
-                padding: 1.5rem;
-            }
-
-            .screenshot-frame {
-                width: 240px;
-            }
-
-            .screenshot-frame img {
-                border-radius: 12px;
-            }
-
-            .footer-links {
-                flex-direction: column;
-                gap: 1rem;
-            }
-        }
-
-        /* Intersection Observer Styles */
-        .animate-on-scroll {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.6s ease, transform 0.6s ease;
-        }
-
-        .animate-on-scroll.visible {
-            opacity: 1;
-            transform: translateY(0);
+            .feature-card { padding: 1.5rem; }
+            .screenshot-frame { width: 220px; }
+            .screenshot-frame img { }
+            .proof-features { gap: 2rem; }
+            .footer-links { flex-direction: column; gap: 1rem; }
         }
     </style>
 </head>
 <body>
+
+    <!-- Navigation -->
+    <nav id="navbar">
+        <div class="nav-inner">
+            <a href="../../index.html" class="nav-logo">
+                <img src="../../logo.png" alt="AVF Enterprises">
+            </a>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <div class="nav-links" id="navLinks">
+                <a href="../../index.html">Home</a>
+                <a href="#features">Features</a>
+                <a href="#screenshots">Preview</a>
+                <!-- Security: external link uses noopener noreferrer to prevent tab-napping -->
+                <a href="https://apps.apple.com/us/app/goalpath-daily-goal-flow/id6757735980" class="nav-cta-store" target="_blank" rel="noopener noreferrer">
+                    <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store">
+                </a>
+            </div>
+        </div>
+    </nav>
+
     <!-- Hero Section -->
     <section class="hero">
         <div class="hero-content">
             <div class="hero-text">
                 <div class="hero-badge">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.53 4.08zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
-                    </svg>
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.53 4.08zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
                     Available on iOS
                 </div>
-                <p class="app-name">GoalPath</p>
-                <h1>Turn goals into daily progress</h1>
-                <p class="hero-description">GoalPath helps you break big dreams into achievable steps. Stay focused on what matters today, track your momentum, and watch your goals become reality.</p>
+                <p class="app-name-hero">GoalPath</p>
+                <h1>Big goals.<br>Small steps.<br>Every day.</h1>
+                <p class="hero-description">GoalPath turns your ambitions into a clear daily plan. Set your goal, break it into phases and tasks, and wake up each morning knowing exactly what to do. Free on iOS.</p>
                 <div class="cta-group">
                     <a href="https://apps.apple.com/us/app/goalpath-daily-goal-flow/id6757735980" class="app-store-btn" target="_blank" rel="noopener noreferrer">
                         <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store">
                     </a>
                     <a href="#features" class="secondary-link">
                         See features
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M5 12h14M12 5l7 7-7 7"/>
-                        </svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                     </a>
                 </div>
             </div>
             <div class="hero-visual">
                 <div class="hero-phone">
-                    <img src="images/screenshot-home.png" alt="GoalPath Home Screen">
+                    <img src="images/screenshot-home.png" alt="GoalPath home screen showing daily to-dos and active goals">
                 </div>
             </div>
         </div>
     </section>
+
+    <div class="section-divider"></div>
 
     <!-- Features Section -->
     <section class="features" id="features">
         <div class="section-container">
-            <div class="section-header animate-on-scroll">
+            <div class="section-header reveal">
                 <p class="section-label">Features</p>
-                <h2>Everything you need to achieve your goals</h2>
-                <p class="section-description">A simple yet powerful system that keeps you organized, motivated, and making progress every day.</p>
+                <h2 class="section-title">Built for people who actually want to finish</h2>
+                <p class="section-description">Not another to-do app. A complete system that connects your daily actions to the goals they serve.</p>
             </div>
             <div class="features-grid">
-                <div class="feature-card animate-on-scroll">
+                <div class="feature-card reveal-stagger">
                     <div class="feature-icon blue">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <path d="M12 6v6l4 2"/>
-                        </svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
                     </div>
                     <h3>Daily Focus</h3>
-                    <p>See exactly what to do today. No overwhelm, just clear priorities that move your goals forward.</p>
+                    <p>Open GoalPath each morning and see your priorities for the day. No scrolling through lists. No guessing what matters. Just today's actions, tied directly to your goals.</p>
                 </div>
-                <div class="feature-card animate-on-scroll">
+                <div class="feature-card reveal-stagger">
                     <div class="feature-icon green">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#34C759" stroke-width="2">
-                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                            <polyline points="22 4 12 14.01 9 11.01"/>
-                        </svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                     </div>
                     <h3>Break Down Goals</h3>
-                    <p>Transform big ambitions into phases, tasks, and to-dos. Progress feels easier when the path is clear.</p>
+                    <p>Split any goal into phases, then into tasks, then into daily to-dos. Suddenly, "learn Spanish" becomes "practice vocabulary for 15 minutes." The path forward is always clear.</p>
                 </div>
-                <div class="feature-card animate-on-scroll">
+                <div class="feature-card reveal-stagger">
                     <div class="feature-icon purple">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#AF52DE" stroke-width="2">
-                            <path d="M12 20V10"/>
-                            <path d="M18 20V4"/>
-                            <path d="M6 20v-4"/>
-                        </svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
                     </div>
                     <h3>Track Progress</h3>
-                    <p>Visual progress rings and statistics show how far you've come. Momentum is motivating.</p>
+                    <p>Watch your progress rings fill up as you complete tasks. Daily streaks, completion stats, and visual milestones show you exactly how far you've come.</p>
                 </div>
-                <div class="feature-card animate-on-scroll">
-                    <div class="feature-icon orange">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF9500" stroke-width="2">
-                            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-                            <path d="M2 17l10 5 10-5"/>
-                            <path d="M2 12l10 5 10-5"/>
-                        </svg>
+                <div class="feature-card reveal-stagger">
+                    <div class="feature-icon amber">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
                     </div>
                     <h3>Organized System</h3>
-                    <p>Goals, phases, tasks, and to-dos work together. One clear system for everything you want to achieve.</p>
+                    <p>Four layers of organization (goals, phases, tasks, to-dos) keep everything connected. You always know how today's work fits into the bigger picture.</p>
                 </div>
             </div>
         </div>
     </section>
+
+    <div class="section-divider"></div>
+
+    <!-- How It Works -->
+    <section class="how-it-works">
+        <div class="section-container">
+            <div class="section-header reveal">
+                <p class="section-label">How It Works</p>
+                <h2 class="section-title">Get started in under two minutes</h2>
+                <p class="section-description">No tutorials needed. No learning curve. Just open the app and go.</p>
+            </div>
+            <div class="steps-grid">
+                <div class="step-card reveal-stagger">
+                    <div class="step-number">01</div>
+                    <h3>Name Your Goal</h3>
+                    <p>Type it in. "Save $5,000." "Learn Spanish." "Run a marathon." Add as many as you want.</p>
+                </div>
+                <div class="step-card reveal-stagger">
+                    <div class="step-number">02</div>
+                    <h3>Break It Down</h3>
+                    <p>Add phases and tasks. GoalPath creates daily to-dos from your plan so you always know the next step.</p>
+                </div>
+                <div class="step-card reveal-stagger">
+                    <div class="step-number">03</div>
+                    <h3>Show Up Daily</h3>
+                    <p>Open your daily view. Complete your to-dos. Watch your progress build. That's it.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
 
     <!-- Screenshots Section -->
     <section class="screenshots" id="screenshots">
         <div class="section-container">
-            <div class="section-header animate-on-scroll">
+            <div class="section-header reveal">
                 <p class="section-label">App Preview</p>
-                <h2>Designed for simplicity</h2>
-                <p class="section-description">A clean interface that helps you focus on what matters most.</p>
+                <h2 class="section-title">See it in action</h2>
+                <p class="section-description">A clean interface built to keep you focused, not distracted.</p>
             </div>
         </div>
-        <div class="screenshots-carousel">
-            <div class="screenshot-item animate-on-scroll">
+        <div class="screenshots-track">
+            <div class="screenshot-item reveal-stagger">
                 <div class="screenshot-frame">
-                    <img src="images/screenshot-home.png" alt="GoalPath - Turn goals into daily progress">
+                    <img src="images/screenshot-home.png" alt="GoalPath home screen showing daily to-dos and active goals">
                 </div>
+                <p class="screenshot-label">Home</p>
             </div>
-            <div class="screenshot-item animate-on-scroll">
+            <div class="screenshot-item reveal-stagger">
                 <div class="screenshot-frame">
-                    <img src="images/screenshot-goals.png" alt="GoalPath - All your goals in one clear system">
+                    <img src="images/screenshot-goals.png" alt="GoalPath goals list with focus goal, progress rings, and categories">
                 </div>
+                <p class="screenshot-label">Goals</p>
             </div>
-            <div class="screenshot-item animate-on-scroll">
+            <div class="screenshot-item reveal-stagger">
                 <div class="screenshot-frame">
-                    <img src="images/screenshot-goal-detail.png" alt="GoalPath - Break big goals into doable steps">
+                    <img src="images/screenshot-goal-detail.png" alt="GoalPath goal detail showing phases, tasks, and to-dos breakdown">
                 </div>
+                <p class="screenshot-label">Goal Detail</p>
             </div>
-            <div class="screenshot-item animate-on-scroll">
+            <div class="screenshot-item reveal-stagger">
                 <div class="screenshot-frame">
-                    <img src="images/screenshot-todo.png" alt="GoalPath - Know exactly what to do today">
+                    <img src="images/screenshot-progress.png" alt="GoalPath savings goal with progress chart showing target reached">
                 </div>
+                <p class="screenshot-label">Progress</p>
             </div>
-            <div class="screenshot-item animate-on-scroll">
+            <div class="screenshot-item reveal-stagger">
                 <div class="screenshot-frame">
-                    <img src="images/screenshot-stats.png" alt="GoalPath - See how far you've come">
+                    <img src="images/screenshot-todo-dark.png" alt="GoalPath daily to-do view in dark mode with tasks, completed items, and upcoming">
+                </div>
+                <p class="screenshot-label">Daily To-Dos</p>
+            </div>
+            <div class="screenshot-item reveal-stagger">
+                <div class="screenshot-frame">
+                    <img src="images/screenshot-widgets.png" alt="GoalPath iOS widgets showing today's tasks and progress on home screen">
+                </div>
+                <p class="screenshot-label">Widgets</p>
+            </div>
+            <div class="screenshot-item reveal-stagger">
+                <div class="screenshot-frame">
+                    <img src="images/screenshot-stats.png" alt="GoalPath statistics with daily completion calendar and insights">
+                </div>
+                <p class="screenshot-label">Statistics</p>
+            </div>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Social Proof Section -->
+    <section class="social-proof">
+        <div class="section-container">
+            <div class="proof-content reveal">
+                <p class="section-label">Why GoalPath</p>
+                <p class="proof-quote">Most apps help you plan. GoalPath helps you do. Every goal becomes a clear set of daily actions you can actually complete.</p>
+                <div class="proof-features">
+                    <div class="proof-feature">
+                        <span class="proof-feature-value">4 Layers</span>
+                        <span class="proof-feature-label">Goal organization depth</span>
+                    </div>
+                    <div class="proof-feature">
+                        <span class="proof-feature-value">Daily</span>
+                        <span class="proof-feature-label">Focus view</span>
+                    </div>
+                    <div class="proof-feature">
+                        <span class="proof-feature-value">Private</span>
+                        <span class="proof-feature-label">Data stays on device</span>
+                    </div>
+                    <div class="proof-feature">
+                        <span class="proof-feature-value">iCloud</span>
+                        <span class="proof-feature-label">Backup support</span>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- CTA Section -->
-    <section class="cta-section">
-        <div class="section-container">
-            <h2>Start achieving your goals</h2>
-            <p class="section-description">Download GoalPath today and turn your ambitions into daily action.</p>
-            <a href="https://apps.apple.com/us/app/goalpath-daily-goal-flow/id6757735980" class="app-store-btn" target="_blank" rel="noopener noreferrer">
-                <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store">
-            </a>
+    <div class="section-divider"></div>
+
+    <!-- Final CTA Section -->
+    <section class="final-cta">
+        <div class="section-container reveal">
+            <h2 class="section-title">Your future self will thank you</h2>
+            <p class="section-description">Download GoalPath for free and start making progress on your goals today. Not next week. Not next month. Today.</p>
+            <div class="cta-group">
+                <a href="https://apps.apple.com/us/app/goalpath-daily-goal-flow/id6757735980" class="app-store-btn" target="_blank" rel="noopener noreferrer">
+                    <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store">
+                </a>
+            </div>
         </div>
     </section>
 
     <!-- Footer -->
     <footer>
-        <div class="footer-content">
+        <div class="footer-inner">
             <div class="footer-links">
                 <a href="../../index.html">Home</a>
+                <a href="../index.html">Apps</a>
                 <a href="../../legal/goalpath/privacy/index.html">Privacy Policy</a>
                 <a href="../../legal/goalpath/terms/index.html">Terms of Service</a>
             </div>
             <div class="footer-info">
-                <p class="email">goalpath@avfenterprises.com</p>
-                <p class="copyright">&copy; 2026 AVF Enterprises LLC. All rights reserved.</p>
+                <p class="footer-copyright">&copy; 2026 AVF Enterprises LLC. All rights reserved.</p>
             </div>
         </div>
     </footer>
 
     <script>
-        // Intersection Observer for scroll animations
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
+        /* Security: No eval(), no innerHTML, no dangerous functions.
+           All DOM manipulation uses safe APIs (classList, setAttribute).
+           No user input is processed on this page. */
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach((entry, index) => {
-                if (entry.isIntersecting) {
-                    // Stagger animation for feature cards and screenshots
-                    const delay = entry.target.closest('.features-grid') || entry.target.closest('.screenshots-carousel')
-                        ? index * 100
-                        : 0;
-
-                    setTimeout(() => {
-                        entry.target.classList.add('visible');
-                    }, delay);
-
-                    observer.unobserve(entry.target);
+        // Sticky nav
+        (function() {
+            var navbar = document.getElementById('navbar');
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 50) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
                 }
-            });
-        }, observerOptions);
+            }, { passive: true });
+        })();
 
-        // Observe all animated elements
-        document.querySelectorAll('.animate-on-scroll').forEach(el => {
-            observer.observe(el);
-        });
+        // Mobile nav toggle
+        (function() {
+            var toggle = document.getElementById('navToggle');
+            var links = document.getElementById('navLinks');
+
+            toggle.addEventListener('click', function() {
+                var isOpen = links.classList.toggle('open');
+                toggle.classList.toggle('active');
+                toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            });
+
+            var navAnchors = links.querySelectorAll('a');
+            for (var i = 0; i < navAnchors.length; i++) {
+                navAnchors[i].addEventListener('click', function() {
+                    links.classList.remove('open');
+                    toggle.classList.remove('active');
+                    toggle.setAttribute('aria-expanded', 'false');
+                });
+            }
+        })();
+
+        // Intersection Observer for scroll reveals
+        (function() {
+            var observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            var observer = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            var reveals = document.querySelectorAll('.reveal');
+            for (var i = 0; i < reveals.length; i++) {
+                observer.observe(reveals[i]);
+            }
+
+            // Staggered reveals
+            var staggerObserver = new IntersectionObserver(function(entries) {
+                var visibleEntries = [];
+                entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        visibleEntries.push(entry.target);
+                        staggerObserver.unobserve(entry.target);
+                    }
+                });
+                visibleEntries.forEach(function(el, index) {
+                    el.style.transitionDelay = (index * 0.1) + 's';
+                    el.classList.add('visible');
+                });
+            }, observerOptions);
+
+            var staggers = document.querySelectorAll('.reveal-stagger');
+            for (var j = 0; j < staggers.length; j++) {
+                staggerObserver.observe(staggers[j]);
+            }
+        })();
 
         // Smooth scroll for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
+        (function() {
+            var anchors = document.querySelectorAll('a[href^="#"]');
+            for (var i = 0; i < anchors.length; i++) {
+                anchors[i].addEventListener('click', function(e) {
+                    var href = this.getAttribute('href');
+                    if (href === '#') return;
+                    var target = document.querySelector(href);
+                    if (target) {
+                        e.preventDefault();
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            }
+        })();
     </script>
 </body>
 </html>

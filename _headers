@@ -1,0 +1,27 @@
+# Security headers for all pages
+# These headers MUST be delivered via HTTP (not meta tags) to be effective.
+# This file works with Netlify. For other hosts:
+#   - Apache: use .htaccess with Header directives
+#   - Nginx: add_header directives in server block
+#   - Vercel: use vercel.json headers config
+#   - GitHub Pages: not supported (use Cloudflare or a proxy)
+
+/*
+  # Prevent clickjacking — no page on this site should be framed
+  X-Frame-Options: DENY
+
+  # Prevent MIME type sniffing
+  X-Content-Type-Options: nosniff
+
+  # Enforce HTTPS for 1 year, including subdomains
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+
+  # Control referrer information leakage
+  Referrer-Policy: strict-origin-when-cross-origin
+
+  # Disable unused browser features
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+
+  # CSP with frame-ancestors (only effective as HTTP header)
+  # This supplements the meta tag CSP in each HTML file
+  Content-Security-Policy: frame-ancestors 'none'
